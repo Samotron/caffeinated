@@ -54,21 +54,23 @@ jobs:
         with:
           version: 0.13.0
       
-      - name: Install Linux dependencies for headers
+      - name: Install Linux dependencies
         if: steps.check_tag.outputs.exists == 'false'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libx11-dev libxss-dev libxrandr-dev
+          sudo apt-get install -y libx11-dev libxss-dev libxrandr-dev libx11-6 libxss1 libxrandr2
       
-      - name: Build Linux binary
+      - name: Build Linux binary (native)
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          zig build -Dtarget=x86_64-linux-gnu -Doptimize=ReleaseFast
+          # Build natively for Linux to avoid library search issues
+          zig build -Doptimize=ReleaseFast
           cp zig-out/bin/caffeinated caffeinated-linux-amd64
       
-      - name: Build Windows binary
+      - name: Build Windows binary (cross-compile)
         if: steps.check_tag.outputs.exists == 'false'
         run: |
+          # Cross-compile for Windows (no X11 dependencies needed)
           zig build -Dtarget=x86_64-windows-gnu -Doptimize=ReleaseFast
           cp zig-out/bin/caffeinated.exe caffeinated-windows-amd64.exe
       
