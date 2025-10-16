@@ -1,3 +1,8 @@
+# Caffeinated Makefile
+# NOTE: Zig (build.zig) is now the recommended build system for easy cross-compilation
+# See README.md for Zig build instructions
+# This Makefile is maintained for traditional GCC/Make workflows
+
 CC = gcc
 CFLAGS = -Wall -Wextra -O2
 TARGET = caffeinated

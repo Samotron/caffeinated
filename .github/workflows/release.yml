@@ -48,30 +48,29 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
       
-      - name: Install dependencies (Linux)
+      - name: Setup Zig
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: 0.13.0
+      
+      - name: Install Linux dependencies for headers
         if: steps.check_tag.outputs.exists == 'false'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libx11-dev libxss-dev libxrandr-dev xclip gcc make
+          sudo apt-get install -y libx11-dev libxss-dev libxrandr-dev
       
       - name: Build Linux binary
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          make clean || true
-          make
-          mv caffeinated caffeinated-linux-amd64
-      
-      - name: Set up MinGW for Windows build
-        if: steps.check_tag.outputs.exists == 'false'
-        run: |
-          sudo apt-get install -y mingw-w64
+          zig build -Dtarget=x86_64-linux-gnu -Doptimize=ReleaseFast
+          cp zig-out/bin/caffeinated caffeinated-linux-amd64
       
       - name: Build Windows binary
         if: steps.check_tag.outputs.exists == 'false'
         run: |
-          make clean || true
-          CC=x86_64-w64-mingw32-gcc make
-          mv caffeinated.exe caffeinated-windows-amd64.exe
+          zig build -Dtarget=x86_64-windows-gnu -Doptimize=ReleaseFast
+          cp zig-out/bin/caffeinated.exe caffeinated-windows-amd64.exe
       
       - name: Create Release
         if: steps.check_tag.outputs.exists == 'false'

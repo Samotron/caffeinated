@@ -75,22 +75,59 @@ make                                    # Build
 
 ## Building
 
-### Linux
+### Using Zig (Recommended - Easy Cross-Compilation)
+
+**Install Zig:**
+```bash
+# Linux/macOS
+brew install zig  # or download from https://ziglang.org/download/
+
+# Or use version manager
+curl -sSL https://raw.githubusercontent.com/tristanisham/zvm/master/install.sh | bash
+zvm install 0.13.0
+```
+
+**Build for your platform:**
+```bash
+zig build                          # Build for current platform
+zig build run                      # Build and run
+```
+
+**Cross-compile:**
+```bash
+# Linux x86_64
+zig build -Dtarget=x86_64-linux-gnu -Doptimize=ReleaseFast
+
+# Windows x86_64
+zig build -Dtarget=x86_64-windows-gnu -Doptimize=ReleaseFast
+
+# macOS (requires macOS SDK headers)
+zig build -Dtarget=x86_64-macos -Doptimize=ReleaseFast
+```
+
+Binaries are output to `zig-out/bin/`
+
+**Note:** Linux builds require X11 headers installed on the build machine:
+```bash
+sudo apt-get install libx11-dev libxss-dev libxrandr-dev
+```
+
+### Using Make (Traditional)
+
+**Linux:**
 ```bash
 make
 ```
-
 Requirements: `gcc`, `libx11-dev`, `libxss-dev`, `libxrandr-dev`, `xclip`
 
 ```bash
 sudo apt-get install libx11-dev libxss-dev libxrandr-dev xclip
 ```
 
-### Windows
+**Windows:**
 ```bash
 make
 ```
-
 Requirements: MinGW or similar GCC toolchain
 
 ## Usage Examples
