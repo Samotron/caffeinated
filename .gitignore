@@ -1,0 +1,101 @@
+# Compiled Output
+*.o
+*.obj
+*.exe
+*.out
+*.app
+caffeinated
+caffeinated.exe
+a.out
+
+# Build directories
+build/
+dist/
+bin/
+obj/
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+*.ilk
+
+# Dependency files
+*.d
+
+# Coverage files
+*.gcda
+*.gcno
+*.gcov
+coverage/
+
+# Static analysis
+cppcheck-build-dir/
+.clang-tidy
+compile_commands.json
+
+# OS specific
+Thumbs.db
+.AppleDouble
+.LSOverride
+._*
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak
+*.cache
+
+# Environment files (keep example)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Test files
+test_output/
+*.test
+
+# Core dumps
+core
+core.*
+vgcore.*
+
+# Package manager
+node_modules/
+package-lock.json
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Valgrind
+valgrind-out.txt
+massif.out.*
+
+# Profiling
+gmon.out
+perf.data
+*.prof
+
+# Documentation build
+docs/_build/
+site/
+
+# Custom test files
+test.env
+*.env.test

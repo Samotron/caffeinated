@@ -1,0 +1,113 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Calculate version
+        id: version
+        run: |
+          # Get the current year and month
+          YEAR=$(date +%Y)
+          MONTH=$(date +%m)
+          
+          # Get the count of releases this month
+          # Filter tags that match this month's pattern
+          TAG_PATTERN="${YEAR}.${MONTH}."
+          COUNT=$(git tag -l "${TAG_PATTERN}*" | wc -l)
+          
+          # Increment count for new release
+          COUNT=$((COUNT + 1))
+          
+          # Create version string
+          VERSION="${YEAR}.${MONTH}.${COUNT}"
+          
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Version: ${VERSION}"
+      
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          if git rev-parse "v${{ steps.version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Install dependencies (Linux)
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libxss-dev libxrandr-dev xclip gcc make
+      
+      - name: Build Linux binary
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          make clean || true
+          make
+          mv caffeinated caffeinated-linux-amd64
+      
+      - name: Set up MinGW for Windows build
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          sudo apt-get install -y mingw-w64
+      
+      - name: Build Windows binary
+        if: steps.check_tag.outputs.exists == 'false'
+        run: |
+          make clean || true
+          CC=x86_64-w64-mingw32-gcc make
+          mv caffeinated.exe caffeinated-windows-amd64.exe
+      
+      - name: Create Release
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Release v${{ steps.version.outputs.version }}
+          body: |
+            ## Caffeinated v${{ steps.version.outputs.version }}
+            
+            Automated release built from main branch.
+            
+            ### Downloads
+            - **Linux**: `caffeinated-linux-amd64`
+            - **Windows**: `caffeinated-windows-amd64.exe`
+            
+            ### Installation
+            
+            **Linux:**
+            ```bash
+            wget https://github.com/${{ github.repository }}/releases/download/v${{ steps.version.outputs.version }}/caffeinated-linux-amd64
+            chmod +x caffeinated-linux-amd64
+            sudo mv caffeinated-linux-amd64 /usr/local/bin/caffeinated
+            ```
+            
+            **Windows:**
+            Download `caffeinated-windows-amd64.exe` and rename to `caffeinated.exe`, then add to your PATH.
+          files: |
+            caffeinated-linux-amd64
+            caffeinated-windows-amd64.exe
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Skip release (tag exists)
+        if: steps.check_tag.outputs.exists == 'true'
+        run: |
+          echo "Tag v${{ steps.version.outputs.version }} already exists. Skipping release."
